@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Medical Chatbot</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Medical Chatbot</h1>
+    <p>Enter your symptoms below. We'll suggest the right medical department to consult.</p>
+
+    <textarea id="symptoms" placeholder="e.g., chest pain and shortness of breath"></textarea>
+    <button onclick="analyzeSymptoms()">Analyze</button>
+
+    <h2 id="result"></h2>
+  </div>
+
+  <script>
+    async function analyzeSymptoms() {
+      const input = document.getElementById("symptoms").value.trim();
+      const resultEl = document.getElementById("result");
+
+      if (!input) {
+        resultEl.innerText = "❗ Please enter your symptoms first.";
+        return;
+      }
+
+      resultEl.innerText = "⏳ Analyzing symptoms...";
+
+      try {
+        const response = await fetch("http://127.0.0.1:5000/analyze", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ symptoms: input })
+        });
+
+        const data = await response.json();
+
+        if (data.recommended_department) {
+          resultEl.innerText = `✅ You should consult: ${data.recommended_department}`;
+        } else {
+          resultEl.innerText = "⚠️ Unable to determine the correct department.";
+        }
+      } catch (err) {
+        console.error(err);
+        resultEl.innerText = "🚫 Error connecting to backend.";
+      }
+    }
+  </script>
+</body>
+</html>
